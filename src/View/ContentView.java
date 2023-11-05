@@ -6,8 +6,10 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import Core.CustomTopicSubscriber;
 import Interfaces.SubscriberListener;
 
+import javax.jms.TopicSubscriber;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -22,15 +24,12 @@ public class ContentView extends JFrame implements SubscriberListener {
 
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
-	private JTextField textField;
+	private JTextField assignTopicTextField;
 	private JTextField sendMessageToTopicTextField;
 	private JTextField queueIdentifier;
 	private JTextField directMessageTextField;
-
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
+	
+	public void render() {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
@@ -48,7 +47,7 @@ public class ContentView extends JFrame implements SubscriberListener {
 	 */
 	public ContentView() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 561, 374);
+		setBounds(100, 100, 769, 504);
 		contentPane = new JPanel();
 		contentPane.setToolTipText("");
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -68,11 +67,11 @@ public class ContentView extends JFrame implements SubscriberListener {
 		lblNewLabel_2.setBounds(10, 36, 79, 14);
 		contentPane.add(lblNewLabel_2);
 		
-		textField = new JTextField();
-		textField.setToolTipText("Nome do Tópico");
-		textField.setBounds(10, 57, 86, 20);
-		contentPane.add(textField);
-		textField.setColumns(10);
+		assignTopicTextField = new JTextField();
+		assignTopicTextField.setToolTipText("Nome do Tópico");
+		assignTopicTextField.setBounds(10, 57, 86, 20);
+		contentPane.add(assignTopicTextField);
+		assignTopicTextField.setColumns(10);
 		
 		JButton assignTopicButton = new JButton("Assinar");
 		assignTopicButton.addActionListener(new ActionListener() {
@@ -107,7 +106,7 @@ public class ContentView extends JFrame implements SubscriberListener {
 		contentPane.add(lblNewLabel_4);
 		
 		JLabel lblNewLabel_5 = new JLabel("Usuário");
-		lblNewLabel_5.setBounds(300, 36, 36, 14);
+		lblNewLabel_5.setBounds(300, 36, 78, 14);
 		contentPane.add(lblNewLabel_5);
 		
 		queueIdentifier = new JTextField();
@@ -135,12 +134,15 @@ public class ContentView extends JFrame implements SubscriberListener {
 	}
 	
 	public void assignToTopicTapped() {
+		String topicName = assignTopicTextField.getText();
+		if (topicName.isBlank()) { return; }
 		
+		CustomTopicSubscriber subscriber = new CustomTopicSubscriber(topicName, this);
+		subscriber.Go();
 	}
 
 	@Override
 	public void didReceiveTopicMessage(String message) {
-		
-		
+		System.out.println("Message Received! " + message);
 	}
 }

@@ -1,3 +1,4 @@
+package Core;
 import javax.jms.*;
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
@@ -5,12 +6,12 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 import Interfaces.SubscriberListener;
 
  
-public class Subscriber implements MessageListener {	
+public class CustomTopicSubscriber implements MessageListener {
  	private static String url = ActiveMQConnection.DEFAULT_BROKER_URL;
 	private String topicName;
 	private SubscriberListener listener;
      
-     public Subscriber(String topicName, SubscriberListener listener) {
+     public CustomTopicSubscriber(String topicName, SubscriberListener listener) {
     	 this.topicName = topicName;
     	 this.listener = listener;
      }
