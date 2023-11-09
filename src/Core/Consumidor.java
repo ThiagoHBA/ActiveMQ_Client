@@ -20,7 +20,6 @@ public class Consumidor{
 	
 	      Destination destination = session.createQueue(queueName);
 	
-	
 	      MessageConsumer consumer = session.createConsumer(destination);
 	
 	      Message message = consumer.receive();

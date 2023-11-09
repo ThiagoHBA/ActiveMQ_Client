@@ -38,7 +38,8 @@ public class CustomTopicSubscriber implements MessageListener {
      public void onMessage(Message message){
          if(message instanceof TextMessage){
              try {
-            	 listener.didReceiveTopicMessage(message.toString());
+            	 TextMessage textMessage = (TextMessage) message;
+            	 listener.didReceiveTopicMessage(textMessage.getText());
              } catch(Exception e){
             	 System.out.println("Error: " + e.toString());
              }

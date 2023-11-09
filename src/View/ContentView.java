@@ -6,9 +6,11 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import Core.CustomTopicPublisher;
 import Core.CustomTopicSubscriber;
 import Interfaces.SubscriberListener;
 
+import javax.jms.JMSException;
 import javax.jms.TopicSubscriber;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
@@ -28,6 +30,7 @@ public class ContentView extends JFrame implements SubscriberListener {
 	private JTextField sendMessageToTopicTextField;
 	private JTextField queueIdentifier;
 	private JTextField directMessageTextField;
+	private JTextPane topicMessagesPane;
 	
 	public void render() {
 		EventQueue.invokeLater(new Runnable() {
@@ -84,7 +87,8 @@ public class ContentView extends JFrame implements SubscriberListener {
 		lblNewLabel_3.setBounds(10, 88, 121, 14);
 		contentPane.add(lblNewLabel_3);
 		
-		JTextPane topicMessagesPane = new JTextPane();
+		topicMessagesPane = new JTextPane();
+		topicMessagesPane.setEditable(false);
 		topicMessagesPane.setBackground(new Color(232, 232, 232));
 		topicMessagesPane.setBounds(10, 113, 263, 147);
 		contentPane.add(topicMessagesPane);
@@ -96,7 +100,7 @@ public class ContentView extends JFrame implements SubscriberListener {
 		
 		JButton sendTopicMessageButton = new JButton("Enviar");
 		sendTopicMessageButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {  }
+			public void actionPerformed(ActionEvent e) { sendMessageToTopicTapped(); }
 		});
 		sendTopicMessageButton.setBounds(211, 303, 62, 23);
 		contentPane.add(sendTopicMessageButton);
@@ -140,9 +144,27 @@ public class ContentView extends JFrame implements SubscriberListener {
 		CustomTopicSubscriber subscriber = new CustomTopicSubscriber(topicName, this);
 		subscriber.Go();
 	}
+	
+	public void sendMessageToTopicTapped() {
+		String topicName = assignTopicTextField.getText();
+		String message = sendMessageToTopicTextField.getText();
+		
+		if (topicName.isBlank()) { return; }
+		if (message.isBlank()) { return; }
+		
+		CustomTopicPublisher publisher = new CustomTopicPublisher(topicName);
+		
+		try {
+			publisher.produceMessage(message);
+			System.out.println("Enviando mensagem: " + message);
+		} catch (JMSException e) {
+			e.printStackTrace();
+		}
+	}
 
 	@Override
 	public void didReceiveTopicMessage(String message) {
-		System.out.println("Message Received! " + message);
+		String oldMessage = topicMessagesPane.getText();
+		topicMessagesPane.setText(oldMessage + "\n" + message);
 	}
 }
