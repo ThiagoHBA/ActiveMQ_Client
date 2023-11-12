@@ -6,12 +6,13 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import Core.CustomQueueConsumer;
+import Core.CustomQueueProducer;
 import Core.CustomTopicPublisher;
 import Core.CustomTopicSubscriber;
 import Interfaces.SubscriberListener;
 
 import javax.jms.JMSException;
-import javax.jms.TopicSubscriber;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -19,8 +20,6 @@ import javax.swing.JLabel;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import java.awt.Color;
-import javax.swing.JSeparator;
-import javax.swing.SwingConstants;
 
 public class ContentView extends JFrame implements SubscriberListener {
 
@@ -29,8 +28,11 @@ public class ContentView extends JFrame implements SubscriberListener {
 	private JTextField assignTopicTextField;
 	private JTextField sendMessageToTopicTextField;
 	private JTextField queueIdentifier;
-	private JTextField directMessageTextField;
 	private JTextPane topicMessagesPane;
+	private CustomQueueConsumer consumer = new CustomQueueConsumer();
+	private CustomQueueProducer producer = new CustomQueueProducer();
+	private JTextPane directMessagesPanel;
+	private JTextField directMessageTextField;
 	
 	public void render() {
 		EventQueue.invokeLater(new Runnable() {
@@ -129,12 +131,26 @@ public class ContentView extends JFrame implements SubscriberListener {
 		
 		JButton sendDirectMessageButton = new JButton("Enviar");
 		sendDirectMessageButton.setBounds(473, 113, 62, 23);
+		sendDirectMessageButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				sendDirectMessageTapped();
+			}
+		});
 		contentPane.add(sendDirectMessageButton);
 		
-		JTextPane directMessagesPanel = new JTextPane();
+		directMessagesPanel = new JTextPane();
 		directMessagesPanel.setBackground(new Color(232, 232, 232));
-		directMessagesPanel.setBounds(300, 143, 235, 181);
+		directMessagesPanel.setBounds(300, 143, 235, 147);
 		contentPane.add(directMessagesPanel);
+		
+		JButton updateMessagesButton = new JButton("Atualizar Mensagens");
+		updateMessagesButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				updateReceivedMessages();
+			}
+		});
+		updateMessagesButton.setBounds(359, 303, 138, 23);
+		contentPane.add(updateMessagesButton);
 	}
 	
 	public void assignToTopicTapped() {
@@ -161,10 +177,37 @@ public class ContentView extends JFrame implements SubscriberListener {
 			e.printStackTrace();
 		}
 	}
+	
+	public void sendDirectMessageTapped() {
+		String queueIdentifierText = queueIdentifier.getText();
+		String messageText = directMessageTextField.getText();
+		if (queueIdentifierText.isBlank()) { return; }
+		if (messageText.isBlank()) { return; }
+		
+		try {
+			producer.produceMessage(queueIdentifierText, messageText);
+		} catch (JMSException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void updateReceivedMessages() {
+		try {
+			String message = consumer.consume("1").getText();
+			
+			if (message != null) {
+				String oldMessages = directMessagesPanel.getText();
+				directMessagesPanel.setText(oldMessages + "\n" + message);
+			}
+		} catch (JMSException e) {
+			e.printStackTrace();
+		}
+	}
 
 	@Override
 	public void didReceiveTopicMessage(String message) {
 		String oldMessage = topicMessagesPane.getText();
 		topicMessagesPane.setText(oldMessage + "\n" + message);
 	}
+
 }

@@ -3,8 +3,6 @@ import javax.jms.*;
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
 
-import Interfaces.SubscriberListener;
-
 public class CustomTopicPublisher{
 	
  	private static String url = ActiveMQConnection.DEFAULT_BROKER_URL;
