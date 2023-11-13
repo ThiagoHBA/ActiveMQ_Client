@@ -22,6 +22,7 @@ import javax.swing.JTextPane;
 import java.awt.Color;
 
 public class ClientView extends JFrame implements SubscriberListener {
+	private String clientIdentifier; 
 
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
@@ -34,11 +35,11 @@ public class ClientView extends JFrame implements SubscriberListener {
 	private JTextPane directMessagesPanel;
 	private JTextField directMessageTextField;
 	
-	public void render() {
+	public static void render(String clientIdentifier) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					ClientView frame = new ClientView();
+					ClientView frame = new ClientView(clientIdentifier);
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -47,10 +48,12 @@ public class ClientView extends JFrame implements SubscriberListener {
 		});
 	}
 
-	/**
-	 * Create the frame.
-	 */
-	public ClientView() {
+	public ClientView(String clientIdentifier) {
+		this.clientIdentifier = clientIdentifier;
+		setupView();
+	}
+	
+	public void setupView() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 603, 446);
 		contentPane = new JPanel();
@@ -152,9 +155,10 @@ public class ClientView extends JFrame implements SubscriberListener {
 		});
 		contentPane.add(updateMessagesButton);
 		
-		JLabel clientIdentifier = new JLabel("Identificador");
-		clientIdentifier.setBounds(254, 11, 105, 14);
-		contentPane.add(clientIdentifier);
+		JLabel clientIdentifierLabel = new JLabel("Identificador");
+		clientIdentifierLabel.setBounds(254, 11, 260, 14);
+		contentPane.add(clientIdentifierLabel);
+		clientIdentifierLabel.setText(clientIdentifierLabel.getText() + ": " + this.clientIdentifier);
 	}
 	
 	public void assignToTopicTapped() {
@@ -197,7 +201,7 @@ public class ClientView extends JFrame implements SubscriberListener {
 	
 	public void updateReceivedMessages() {
 		try {
-			String message = consumer.consume("1").getText();
+			String message = consumer.consume(this.clientIdentifier).getText();
 			
 			if (message != null) {
 				String oldMessages = directMessagesPanel.getText();

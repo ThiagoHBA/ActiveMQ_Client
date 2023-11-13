@@ -9,6 +9,8 @@ import javax.swing.JLabel;
 import javax.swing.JTextPane;
 import javax.swing.JTextField;
 import javax.swing.JButton;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 public class ManagerView extends JFrame {
 
@@ -18,11 +20,9 @@ public class ManagerView extends JFrame {
 	private JTextPane queuePane;
 	private JTextField createTopicTextField;
 	private JTextField createQueueTextField;
+	private JTextField clientIdentifierTextField;
 
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
+	public void render() {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
@@ -97,13 +97,25 @@ public class ManagerView extends JFrame {
 		createClientLabel.setBounds(241, 338, 134, 14);
 		contentPane.add(createClientLabel);
 		
-		JTextField clientIdentifierTextField = new JTextField();
+		clientIdentifierTextField = new JTextField();
 		clientIdentifierTextField.setBounds(174, 361, 150, 20);
 		contentPane.add(clientIdentifierTextField);
 		clientIdentifierTextField.setColumns(10);
 		
 		JButton createClientButton = new JButton("Instanciar");
+		createClientButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				instantiateClientTapped();
+			}
+		});
 		createClientButton.setBounds(334, 360, 107, 23);
 		contentPane.add(createClientButton);
+	}
+	
+	public void instantiateClientTapped() {
+		String clientName = clientIdentifierTextField.getText();
+		if (clientName.isBlank()) { return; }
+		System.out.println("Displaying Client View");
+		ClientView.render(clientName);
 	}
 }
