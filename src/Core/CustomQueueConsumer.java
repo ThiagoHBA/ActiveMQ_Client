@@ -13,7 +13,6 @@ public class CustomQueueConsumer {
 	      Connection connection = connectionFactory.createConnection();
 	      connection.start();
 	
-	
 	      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 	
 	      Destination destination = session.createQueue(queueName);

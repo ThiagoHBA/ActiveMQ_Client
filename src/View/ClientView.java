@@ -114,7 +114,7 @@ public class ClientView extends JFrame implements SubscriberListener {
 		lblNewLabel_4.setBounds(13, 321, 263, 14);
 		contentPane.add(lblNewLabel_4);
 		
-		JLabel lblNewLabel_5 = new JLabel("Usuário");
+		JLabel lblNewLabel_5 = new JLabel("Identificador");
 		lblNewLabel_5.setBounds(303, 78, 78, 14);
 		contentPane.add(lblNewLabel_5);
 		
@@ -142,6 +142,7 @@ public class ClientView extends JFrame implements SubscriberListener {
 		contentPane.add(sendDirectMessageButton);
 		
 		directMessagesPanel = new JTextPane();
+		directMessagesPanel.setEditable(false);
 		directMessagesPanel.setBounds(303, 185, 235, 147);
 		directMessagesPanel.setBackground(new Color(232, 232, 232));
 		contentPane.add(directMessagesPanel);
@@ -159,6 +160,12 @@ public class ClientView extends JFrame implements SubscriberListener {
 		clientIdentifierLabel.setBounds(254, 11, 260, 14);
 		contentPane.add(clientIdentifierLabel);
 		clientIdentifierLabel.setText(clientIdentifierLabel.getText() + ": " + this.clientIdentifier);
+		
+		try {
+			producer.initialize();
+		} catch (JMSException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public void assignToTopicTapped() {
@@ -176,10 +183,11 @@ public class ClientView extends JFrame implements SubscriberListener {
 		if (topicName.isBlank()) { return; }
 		if (message.isBlank()) { return; }
 		
-		CustomTopicPublisher publisher = new CustomTopicPublisher(topicName);
-		
+		CustomTopicPublisher publisher = new CustomTopicPublisher();
+
 		try {
-			publisher.produceMessage(message);
+			publisher.initialize();
+			publisher.produceMessage(topicName, message);
 			System.out.println("Enviando mensagem: " + message);
 		} catch (JMSException e) {
 			e.printStackTrace();
@@ -189,11 +197,13 @@ public class ClientView extends JFrame implements SubscriberListener {
 	public void sendDirectMessageTapped() {
 		String queueIdentifierText = queueIdentifier.getText();
 		String messageText = directMessageTextField.getText();
+		
 		if (queueIdentifierText.isBlank()) { return; }
 		if (messageText.isBlank()) { return; }
 		
 		try {
 			producer.produceMessage(queueIdentifierText, messageText);
+			System.out.println("Enviando mensagem: " + messageText + "para o usuário: " + queueIdentifierText);
 		} catch (JMSException e) {
 			e.printStackTrace();
 		}
